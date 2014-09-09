@@ -1,17 +1,35 @@
-################################################################################
-# SCREENRC 
-################################################################################
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Author : Guillaume Seren
+# Mail   : guillaumeseren@gmail.com
+# Date   : 2013-04-18
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# ------------------------------------------------------------------------------
-# TODOS 
-# ------------------------------------------------------------------------------
+#================================================
+#++++++++++++++++++++++++++++++++++++++++++++++++
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#------------------------------------------------
 
+#################################################
+# SCREENRC :
+#===========
+# Features :
+#+++++++++++
+# - Modification de la statusbar :
+# - Lancement appli au startup.
+# - Changement des couleurs supportés pour le 256.
+# - Modif binding par défaut.
+# - Add a shortcut to re source config file.
+#------------------------------------------------ 
 
-# ------------------------------------------------------------------------------
-# SCREEN SETTINGS
-# ------------------------------------------------------------------------------
+#################################################
+# TODO list :
+#============
+#------------------------------------------------
 
-#Do not show welcome message
+#################################################
+# SCREEN SETTINGS :
+#==================
+#Ne pas afficher le message d'acceuil
 startup_message off
 #NETHACK private jokes
 nethack on
@@ -19,31 +37,144 @@ nethack on
 #defflow on # will force screen to process ^S/^Q
 deflogin on
 
-# Detach screen session, if user disconnect
+# Détacher automatiquement screen, si deconnection.
 autodetach on
 
 # turn visual bell on
 vbell on
+vbell_msg "   Wuff  ----  Wuff!!  "
 
 # define a bigger scrollback, default is 100 lines
 defscrollback 10000
+#------------------------------------------------
 
-# ------------------------------------------------------------------------------
-# SCREEN KEYBINDINGS
-# ------------------------------------------------------------------------------
 
+#################################################
+# SCREEN KEYBINDINGS :
+#=====================
 # Change escape key, par : ctrl + z
 escape ^Zz
 
+# Remove some stupid / dangerous key bindings
+bind ^k
+#bind L
+bind ^\
+
+# Make them better
+bind \\ quit
+bind K kill
+bind I login on
+bind O login off
+bind } history
+
+# make them safer
+bind 'K' kill
+bind 'W' windowlist
+bind 'V' split -v
+
 #Modif de deplacement entre les session ctrl droite / ctrl gauche
-bindkey ^[[1;5D prev
-bindkey ^[[1;5C next
+#bindkey ^[[1;5D prev
+#bindkey ^[[1;5C next
+# The other settings do not work on my ultrabook
+bindkey "^[Od" prev  # change window with ctrl-left
+bindkey "^[Oc" next  # change window with ctrl-right
 
-# ------------------------------------------------------------------------------
-# TERMINAL SETTINGS
-# ------------------------------------------------------------------------------
+# Reload Screen config
+bind R eval "source $HOME/.screenrc" "echo '.screenrc reloaded!'"
+
+# An example of a "screen scraper" which will launch urlview on the current
+# screen window
+#
+#bind ^B eval "hardcopy_append off" "hardcopy -h $HOME/.screen-urlview" "screen urlview $HOME/.screen-urlview"
+#------------------------------------------------
 
 
-caption string "%{= kw}%-Lw%{= kG}%{+b}[%n %t]%{-b}%{= kw}%+Lw%1`"
-caption always
+## For solarized-dark terminal settings
+## http://ethanschoonover.com/solarized
+#caption always '%{= k.}%{.b}[%{.g}%H%{.b}][%= %{.B}%?%-Lw%?%{.r}(%{+b .C}%n*%f %t%?(%u)%?%{-b .r})%{.B}%?%+Lw%?%?%= %{.b}][%{.y}%l%{.b}][%{.c}%m/%d %c%{.b}]%{= dd}'
+#
+##startup_message off
+##escape ^Za
+##bind B title
+#vbell off
+#
+## Originally from Jeff Wescott.
+## Not sure what exactly it does, but it looks like the Debian /etc/screenrc
+## already has this in it, so it's probably valuable:
+## we do not want the width to change to 80 characters on startup:
+#termcap xterm-color 'is=\E[r\E[m\E[2J\E[H\E[?7h\E[?1;4;6l'
+#terminfo xterm-color 'is=\E[r\E[m\E[2J\E[H\E[?7h\E[?1;4;6l'
 
+# https://gist.github.com/qva5on3/5227878
+# Enables GNU Screen for Solarized colors.
+# terminfo and termcap for nice 256 color terminal
+# allow bold colors - necessary for some reason
+#attrcolor b ".I"
+# https://bugs.launchpad.net/byobu/+bug/817690
+attrcolor b ".i"
+# tell screen how to set colors. AB = background, AF=foreground
+#termcapinfo xterm 'Co#256:AB=\E[48;5;%dm:AF=\E[38;5;%dm'
+# erase background with current bg color
+#defbce "on"
+
+
+#################################################
+# TERMINAL SETTINGS :
+#====================
+#
+#caption string "%{= kw}%-Lw%{= kG}%{+b}[%n %t]%{-b}%{= kw}%+Lw%1`"
+#caption always
+
+# have screen update terminal emulators titlebar
+#termcapinfo xterm* 'hs:ts=\E]0;:fs=\007:ds=\E]0;\007'
+defhstatus "screen ^E (^Et) | $USER@^EH"
+
+# Set the right term for screen
+#term xterm-256color
+# term
+term "screen-256color"
+#term xterm-256color
+#term rxvt-256color
+
+# encoding
+encoding UTF-8
+
+# but dont print i.e. "bell in window 0" status craps
+#hardstatus off
+
+shelltitle "$ |bash"
+
+hardstatus alwayslastline
+hardstatus string '%{= kG}%{G}%H%{g} %=%{=kw}%?%-Lw%?%{r}(%{W}%n*%f%t%?(%u)%?%{r})%{w}%?%+Lw%?%?%=%{g} %{B}%l %{g}'
+
+
+defflow off
+
+#rvm needs this
+shell -${SHELL}
+
+#-> Cet modification fonctionne mais 'casse',
+#   la prise en charge de la souris par most et vim.
+#   Qui est bien supporté sinon. Donc à la recherche de mieux.
+#
+#Ajout du support de la molette souris pour le défilement
+#termcapinfo xterm* ti@:te@
+#------------------------------------------------
+
+#################################################
+# STARTUP SCREENS :
+#==================
+#
+# Example of automatically running some programs in windows on screen startup.
+#
+#   The following will open top in the first window, an ssh session to monkey
+#   in the next window, and then open mutt and tail in windows 8 and 9
+#   respectively.
+#
+screen -t main
+screen -t notes vi src/self/notes/todo
+screen -t irc weechat
+screen -t bd ssh bd_unstable
+screen -t home ssh haf932
+screen -t src
+#------------------------------------------------
